@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id             String   @id @default(uuid())
+  name           String
+  logo           String?
+  visitorMatches Match[]  @relation("visitorMatches")
+  homeMatches    Match[]  @relation("homeMatches")
+  players        Player[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Player {
+  id                   String                @id @default(uuid())
+  firstName            String
+  lastName             String
+  picture              String?
+  positions            PlayerPosition[]
+  matchPlayerPositions MatchPlayerPosition[]
+  teams                Team[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+}
+
+model Match {
+  id             String          @id @default(uuid())
+  date           DateTime
+  alignment      MatchAlignment?
+  visitingTeam   Team            @relation("visitorMatches", fields: [visitingTeamId], references: [id])
+  homeTeam       Team            @relation("homeMatches", fields: [homeTeamId], references: [id])
+  visitingTeamId String
+  homeTeamId     String
+  statistics     MatchStatistic?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model MatchAlignment {
+  id                String                @id @default(uuid())
+  formation         String
+  startingPlayers   MatchPlayerPosition[] @relation("startingPlayers")
+  substitutePlayers MatchPlayerPosition[] @relation("substitutePlayers")
+  match             Match                 @relation(fields: [matchId], references: [id])
+  matchId           String                @unique
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+}
+
+model MatchPlayerPosition {
+  id                         String          @id @default(uuid())
+  player                     Player          @relation(fields: [playerId], references: [id])
+  playerId                   String
+  matchPosition              String
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
+  matchStartingAlignment     MatchAlignment? @relation("startingPlayers", fields: [matchStartingAlignmentId], references: [id])
+  matchStartingAlignmentId   String?
+  matchSubstituteAlignment   MatchAlignment? @relation("substitutePlayers", fields: [matchSubstituteAlignmentId], references: [id])
+  matchSubstituteAlignmentId String?
+}
+
+model PlayerPosition {
+  id        String   @id @default(uuid())
+  position  String
+  players   Player[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MatchStatistic {
+  id               String   @id @default(uuid())
+  homeTeamGoal     Int
+  visitingTeamGoal Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  Match            Match    @relation(fields: [matchId], references: [id])
+  matchId          String   @unique
+}

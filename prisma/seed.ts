@@ -28,7 +28,7 @@ async function seed() {
                         positions: {
                             create: [
                                 {
-                                    position: "ST"
+                                    position: "RM"
                                 }
                             ]
                         }
@@ -40,7 +40,7 @@ async function seed() {
                         positions: {
                             create: [
                                 {
-                                    position: "CB"
+                                    position: "RB"
                                 }
                             ]
                         }
@@ -52,12 +52,55 @@ async function seed() {
                         positions: {
                             create: [
                                 {
-                                    position: "FLW"
+                                    position: "LM"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        firstName: "Gustavo",
+                        lastName: "Pele",
+                        picture: "",
+                        positions: {
+                            create: [
+                                {
+                                    position: "LB"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        firstName: "Christiano",
+                        lastName: "Ronaldo",
+                        picture: "",
+                        positions: {
+                            create: [
+                                {
+                                    position: "CM"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        firstName: "Jacques",
+                        lastName: "Pel",
+                        picture: "",
+                        positions: {
+                            create: [
+                                {
+                                    position: "GK"
                                 }
                             ]
                         }
                     }
                 ]
+            }
+        },
+        include: {
+            players: {
+                include: {
+                    positions: true
+                }
             }
         }
     })
@@ -74,12 +117,60 @@ async function seed() {
             visitingTeamId: visitingTeam.id,
             alignment: {
                 create: {
-                    formation: "3-1-2"
+                    formation: "2-3-1"
                 }
             }
-
+        },
+        include: {
+            alignment: true
         }
     })
+    console.log(JSON.stringify(visitingTeam, null, 2))
+    await Promise.all(
+        getStartingPlayer(visitingTeam, match).map((startingPlayer) => {
+            return db.matchPlayerPosition.create({data: startingPlayer});
+        })
+    );
 }
 
 seed();
+
+function getStartingPlayer(visitingTeam: any, match: any) {
+    return [
+        {
+            playerId: visitingTeam.players[0].id,
+            matchPosition: visitingTeam.players[0].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        },
+        {
+            playerId: visitingTeam.players[1].id,
+            matchPosition: visitingTeam.players[1].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        },
+        {
+            playerId: visitingTeam.players[2].id,
+            matchPosition: visitingTeam.players[2].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        },
+        {
+            playerId: visitingTeam.players[3].id,
+            matchPosition: visitingTeam.players[3].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        },
+        {
+            playerId: visitingTeam.players[4].id,
+            matchPosition: visitingTeam.players[4].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        },
+        {
+            playerId: visitingTeam.players[5].id,
+            matchPosition: visitingTeam.players[5].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        },
+        {
+            playerId: visitingTeam.players[6].id,
+            matchPosition: visitingTeam.players[6].positions[0].position,
+            matchStartingAlignmentId: match.alignment?.id
+        }
+    ]
+}

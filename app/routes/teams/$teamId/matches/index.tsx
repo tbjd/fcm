@@ -1,6 +1,21 @@
-import {Link} from "@remix-run/react";
+import {Link, useLoaderData} from "@remix-run/react";
+import {db} from "~/utils/db.server";
+import {json} from "@remix-run/node";
 
+export const loader = async () => {
+    const matches = await db.match.findMany({
+        include: {
+            homeTeam: true,
+            visitingTeam: true
+        }
+    });
+    if (!matches) {
+        throw new Error("Matches not found");
+    }
+    return json({matches});
+};
 export default function TeamMatchesIndexRoute() {
+    const data = useLoaderData<typeof loader>();
     return (
         <div>
             <div>
@@ -9,9 +24,12 @@ export default function TeamMatchesIndexRoute() {
                 </h1>
                 <div>
                     <ul>
-                        <li>
-                            <Link to="a-match-id">Mad scientist vs FC BA</Link>
-                        </li>
+                        {data.matches.map((match) => (
+                            <li key={match.id}>
+                                <Link to={match.id}>
+                                    {match.homeTeam.name} vs {match.visitingTeam.name}
+                                </Link>
+                            </li>))}
                     </ul>
                 </div>
             </div>

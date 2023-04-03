@@ -1,6 +1,17 @@
-import {Link} from "@remix-run/react";
+import {Link, useLoaderData} from "@remix-run/react";
+import {json} from "@remix-run/node";
+import {db} from "~/utils/db.server";
+
+export const loader = async () => {
+    const teams = await db.team.findMany();
+    if (!teams) {
+        throw new Error("Teams not found");
+    }
+    return json({teams});
+};
 
 export default function TeamsIndexRoute() {
+    const data = useLoaderData<typeof loader>();
     return (
         <div>
             <div>
@@ -9,9 +20,12 @@ export default function TeamsIndexRoute() {
                 </h1>
                 <div>
                     <ul>
-                        <li>
-                            <Link to="a-team-id">Mad scientist</Link>
-                        </li>
+                        {data.teams.map((team) => (
+                            <li key={team.id}>
+                                <Link to={team.id}>
+                                    {team.name}
+                                </Link>
+                            </li>))}
                     </ul>
                 </div>
                 <Link to="new">

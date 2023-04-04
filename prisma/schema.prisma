@@ -82,13 +82,34 @@ model Match {
 
 model MatchAlignment {
   id                String                @id @default(uuid())
-  formation         String
+  formation         Formation             @relation(fields: [formationId], references: [id])
+  formationId       String
   startingPlayers   MatchPlayerPosition[] @relation("startingPlayers")
   substitutePlayers MatchPlayerPosition[] @relation("substitutePlayers")
   match             Match                 @relation(fields: [matchId], references: [id])
   matchId           String                @unique
   createdAt         DateTime              @default(now())
   updatedAt         DateTime              @updatedAt
+}
+
+model Formation {
+  id               String                    @id @default(uuid())
+  name             String                    @unique
+  matchAlignements MatchAlignment[]
+  playerPositions  FormationPlayerPosition[]
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+}
+
+model FormationPlayerPosition {
+  id          String     @id @default(uuid())
+  position    String
+  coordinateX Int
+  coordinateY Int
+  Formation   Formation? @relation(fields: [formationId], references: [id])
+  formationId String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model MatchPlayerPosition {

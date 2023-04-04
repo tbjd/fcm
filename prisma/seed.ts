@@ -52,7 +52,50 @@ async function seed() {
             visitingTeamId: visitingTeam.id,
             alignment: {
                 create: {
-                    formation: "2-3-1"
+                    formation: {
+                        create: {
+                            name: "2-3-1",
+                            playerPositions: {
+                                create: [
+                                    {
+                                        position: "GK",
+                                        coordinateX: 5,
+                                        coordinateY: 1,
+                                    },
+                                    {
+                                        position: "RB",
+                                        coordinateX: 7,
+                                        coordinateY: 3,
+                                    },
+                                    {
+                                        position: "LB",
+                                        coordinateX: 3,
+                                        coordinateY: 3,
+                                    },
+                                    {
+                                        position: "CM",
+                                        coordinateX: 5,
+                                        coordinateY: 5,
+                                    },
+                                    {
+                                        position: "LM",
+                                        coordinateX: 2,
+                                        coordinateY: 5,
+                                    },
+                                    {
+                                        position: "RM",
+                                        coordinateX: 8,
+                                        coordinateY: 5,
+                                    },
+                                    {
+                                        position: "ST",
+                                        coordinateX: 5,
+                                        coordinateY: 8,
+                                    },
+                                ]
+                            }
+                        }
+                    }
                 }
             }
         },

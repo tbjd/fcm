@@ -15,7 +15,8 @@ export const loader = async ({params}: LoaderArgs) => {
                         include: {
                             player: true
                         }
-                    }
+                    },
+                    formation:true
                 }
             },
         }
@@ -32,7 +33,7 @@ export default function MatchRoute() {
     return (
         <div>
             <div>
-                Formation: {data.match?.alignment?.formation}
+                Formation: {data.match?.alignment?.formation?.name}
             </div>
             <div>
                 <ul>

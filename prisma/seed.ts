@@ -4,13 +4,32 @@ import {players} from "./mock/player";
 const db = new PrismaClient();
 
 async function seed() {
+    const user = await db.user.create({
+        data: {
+            username: "tristanbrodeur@hotmail.com",
+            roles: {
+                create: [{name: "MANAGER"}]
+            },
+            passwordHash: "$2b$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u",
+            manager: {
+                create: {
+                    firstName: "Tristan",
+                    lastName: "Brodeur"
+                }
+            }
+        },
+        include: {
+            manager: true,
+        }
+    })
     const visitingTeam = await db.team.create({
         data: {
             name: "Mad scientist",
             logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Mad_scientist.svg/1920px-Mad_scientist.svg.png",
             players: {
                 create: players
-            }
+            },
+            managerId: user.manager?.id
         },
         include: {
             players: {

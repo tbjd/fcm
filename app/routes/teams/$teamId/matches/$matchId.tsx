@@ -23,7 +23,6 @@ export const loader = async ({params}: LoaderArgs) => {
     if (!match) {
         throw new Error("Match not found");
     }
-    console.log(JSON.stringify(match,null,2))
     return json({match});
 };
 
@@ -37,9 +36,9 @@ export default function MatchRoute() {
             </div>
             <div>
                 <ul>
-                    {data.match?.alignment?.startingPlayers.map((player)=>(
+                    {data.match?.alignment?.startingPlayers.map((player) => (
                         <li key={player.player.id}>
-                            <span><img src={player.player.picture || ""} height="100px"/></span>
+                            <span><img alt="" src={player.player.picture || ""} height="100px"/></span>
                         </li>
                     ))}
                 </ul>

@@ -1,12 +1,12 @@
 import type {LoaderArgs} from "@remix-run/node";
 import {json} from "@remix-run/node";
 import {useLoaderData} from "@remix-run/react";
+import {db} from "~/utils/db.server";
 
 export const loader = async ({params}: LoaderArgs) => {
-    /*const joke = await db.joke.findUnique({
-        where: { id: params.jokeId },
-    });*/
-    const player = {id: params.playerId, firstName:"Tristan", lastName:"Brodeur",position: "ST"}
+    const player = await db.player.findUnique({
+        where: {id: params.playerId},
+    });
     if (!player) {
         throw new Error("Player not found");
     }

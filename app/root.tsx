@@ -8,6 +8,10 @@ export const links: LinksFunction = () => {
             rel: "stylesheet",
             href: styles
         },
+        {
+            rel: "stylesheet",
+            href: "https://rsms.me/inter/inter.css"
+        }
     ];
 };
 
@@ -19,16 +23,16 @@ function Document({
     title?: string;
 }) {
     return (
-        <html lang="en">
-        <head>
-            <meta charSet="utf-8"/>
-            <title>{title}</title>
-            <Links/>
-        </head>
-        <body className="min-h-screen bg-gray-800 text-gray-300">
-        {children}
-        <LiveReload/>
-        </body>
+        <html lang="en" className="h-full" >
+            <head>
+                <meta charSet="utf-8"/>
+                <title>{title}</title>
+                <Links/>
+            </head>
+            <body className="min-h-screen bg-gray-800 text-gray-300 h-full">
+                {children}
+                <LiveReload/>
+            </body>
         </html>
     );
 }

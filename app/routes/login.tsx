@@ -1,215 +1,159 @@
 import type {ActionArgs,} from "@remix-run/node";
 import {useActionData, useSearchParams,} from "@remix-run/react";
-import {db} from "~/utils/db.server";
 import {badRequest} from "~/utils/request.server";
 import {createUserSession, login} from "~/utils/session.server";
+import {LockClosedIcon} from "@heroicons/react/20/solid";
 
 
 function validateUsername(username: unknown) {
-    if (typeof username !== "string" || username.length < 3) {
-        return `Usernames must be at least 3 characters long`;
-    }
+  if (typeof username !== "string" || username.length < 3) {
+    return `Usernames must be at least 3 characters long`;
+  }
 }
 
 function validatePassword(password: unknown) {
-    if (typeof password !== "string" || password.length < 6) {
-        return `Passwords must be at least 6 characters long`;
-    }
+  if (typeof password !== "string" || password.length < 6) {
+    return `Passwords must be at least 6 characters long`;
+  }
 }
 
 function validateUrl(url: string) {
-    let urls = ["/teams", "/", "https://remix.run"];
-    if (urls.includes(url)) {
-        return url;
-    }
-    return "/teams";
+  let urls = ["/teams", "/", "https://remix.run"];
+  if (urls.includes(url)) {
+    return url;
+  }
+  return "/teams";
 }
 
 export const action = async ({request}: ActionArgs) => {
-    const form = await request.formData();
-    const loginType = form.get("loginType");
-    const username = form.get("username");
-    const password = form.get("password");
-    const redirectTo = validateUrl(
-        form.get("redirectTo")?.toString() || "/teams"
-    );
-    if (
-        typeof loginType !== "string" ||
-        typeof username !== "string" ||
-        typeof password !== "string"
-    ) {
-        return badRequest({
-            fieldErrors: null,
-            fields: null,
-            formError: `Form not submitted correctly.`,
-        });
-    }
+  const form = await request.formData();
+  const username = form.get("email");
+  const password = form.get("password");
+  const redirectTo = validateUrl(
+      form.get("redirectTo")?.toString() || "/teams"
+  );
+  if (
+      typeof username !== "string" ||
+      typeof password !== "string"
+  ) {
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: `Form not submitted correctly.`,
+    });
+  }
 
-    const fields = {loginType, username, password};
-    const fieldErrors = {
-        username: validateUsername(username),
-        password: validatePassword(password),
-    };
-    if (Object.values(fieldErrors).some(Boolean)) {
-        return badRequest({
-            fieldErrors,
-            fields,
-            formError: null,
-        });
-    }
+  const fields = {
+    username,
+    password
+  };
+  const fieldErrors = {
+    username: validateUsername(username),
+    password: validatePassword(password),
+  };
+  if (Object.values(fieldErrors).some(Boolean)) {
+    return badRequest({
+      fieldErrors,
+      fields,
+      formError: null,
+    });
+  }
 
-    switch (loginType) {
-        case "login": {
-            const user = await login({username, password});
-            console.log({user});
-            if (!user) {
-                return badRequest({
-                    fieldErrors: null,
-                    fields,
-                    formError: `Username/Password combination is incorrect`,
-                });
-            }
-            return createUserSession(user.id, redirectTo);
-        }
-        case "register": {
-            const userExists = await db.user.findFirst({
-                where: {username},
-            });
-            if (userExists) {
-                return badRequest({
-                    fieldErrors: null,
-                    fields,
-                    formError: `User with username ${username} already exists`,
-                });
-            }
-            // create the user
-            // create their session and redirect to /teams
-            return badRequest({
-                fieldErrors: null,
-                fields,
-                formError: "Not implemented",
-            });
-        }
-        default: {
-            return badRequest({
-                fieldErrors: null,
-                fields,
-                formError: `Login type invalid`,
-            });
-        }
-    }
+
+  const user = await login({
+    username,
+    password
+  });
+  console.log({user});
+  if (!user) {
+    return badRequest({
+      fieldErrors: null,
+      fields,
+      formError: `Username/Password combination is incorrect`,
+    });
+  }
+  return createUserSession(user.id, redirectTo);
+
+
 };
 
 export default function Login() {
-    const actionData = useActionData<typeof action>();
-    const [searchParams] = useSearchParams();
-    return (
-        <div >
-            <div  data-light="">
-                <h1>Login</h1>
-                <form method="post">
-                    <input
-                        type="hidden"
-                        name="redirectTo"
-                        value={
-                            searchParams.get("redirectTo") ?? undefined
-                        }
-                    />
-                    <fieldset>
-                        <legend>
-                            Login or Register?
-                        </legend>
-                        <label>
-                            <input
-                                type="radio"
-                                name="loginType"
-                                value="login"
-                                defaultChecked={
-                                    !actionData?.fields?.loginType ||
-                                    actionData?.fields?.loginType === "login"
-                                }
-                            />{" "}
-                            Login
-                        </label>
-                        <label>
-                            <input
-                                type="radio"
-                                name="loginType"
-                                value="register"
-                                defaultChecked={
-                                    actionData?.fields?.loginType ===
-                                    "register"
-                                }
-                            />{" "}
-                            Register
-                        </label>
-                    </fieldset>
-                    <div>
-                        <label htmlFor="username-input">Username</label>
-                        <input
-                            type="text"
-                            id="username-input"
-                            name="username"
-                            defaultValue={actionData?.fields?.username}
-                            aria-invalid={Boolean(
-                                actionData?.fieldErrors?.username
-                            )}
-                            aria-errormessage={
-                                actionData?.fieldErrors?.username
-                                    ? "username-error"
-                                    : undefined
-                            }
-                        />
-                        {actionData?.fieldErrors?.username ? (
-                            <p
-                                role="alert"
-                                id="username-error"
-                            >
-                                {actionData.fieldErrors.username}
-                            </p>
-                        ) : null}
-                    </div>
-                    <div>
-                        <label htmlFor="password-input">Password</label>
-                        <input
-                            id="password-input"
-                            name="password"
-                            type="password"
-                            defaultValue={actionData?.fields?.password}
-                            aria-invalid={Boolean(
-                                actionData?.fieldErrors?.password
-                            )}
-                            aria-errormessage={
-                                actionData?.fieldErrors?.password
-                                    ? "password-error"
-                                    : undefined
-                            }
-                        />
-                        {actionData?.fieldErrors?.password ? (
-                            <p
-
-                                role="alert"
-                                id="password-error"
-                            >
-                                {actionData.fieldErrors.password}
-                            </p>
-                        ) : null}
-                    </div>
-                    <div id="form-error-message">
-                        {actionData?.formError ? (
-                            <p
-
-                                role="alert"
-                            >
-                                {actionData.formError}
-                            </p>
-                        ) : null}
-                    </div>
-                    <button type="submit">
-                        Submit
-                    </button>
-                </form>
+  const actionData = useActionData<typeof action>();
+  const [searchParams] = useSearchParams();
+  return (
+      <>
+        <div className="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+          <div className="w-full max-w-md space-y-8">
+            <div>
+              <div className="text-center">⚽️</div>
+              <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
+                Sign in to your account
+              </h2>
             </div>
+            <form className="mt-8 space-y-6" method="POST">
+              <input type="hidden" name="redirectTo" value={searchParams.get("redirectTo") ?? undefined}/>
+              <div className="-space-y-px rounded-md shadow-sm">
+                <div>
+                  <label htmlFor="email-address" className="sr-only">
+                    Email address
+                  </label>
+                  <input
+                      id="email-address"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      placeholder="Email address"
+                  />
+                  {actionData?.fieldErrors?.username ? (
+                      <p
+                          className="form-validation-error"
+                          role="alert"
+                          id="username-error"
+                      >
+                        {actionData.fieldErrors.username}
+                      </p>
+                  ) : null}
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">
+                    Password
+                  </label>
+                  <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      placeholder="Password"
+                  />
+                  {actionData?.fieldErrors?.password ? (
+                      <p
+                          className="form-validation-error"
+                          role="alert"
+                          id="password-error"
+                      >
+                        {actionData.fieldErrors.password}
+                      </p>
+                  ) : null}
+                </div>
+              </div>
+              <div>
+                <button
+                    type="submit"
+                    className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true"/>
+                </span>
+                  Sign in
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-    );
+      </>
+  )
 }

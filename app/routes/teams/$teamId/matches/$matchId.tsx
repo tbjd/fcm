@@ -16,7 +16,11 @@ export const loader = async ({params}: LoaderArgs) => {
                             player: true
                         }
                     },
-                    formation:true
+                    formation: {
+                        include: {
+                            playerPositions: true
+                        }
+                    }
                 }
             },
         }
@@ -24,7 +28,15 @@ export const loader = async ({params}: LoaderArgs) => {
     if (!match) {
         throw new Error("Match not found");
     }
-    return json({match});
+    const playerPositions = match.alignment?.formation.playerPositions
+    let field: any[];
+    field = [];
+    for(let i=0; i<9; i++) {
+        field[i] = new Array(9);
+    }
+    playerPositions?.forEach((p)=> field[p.coordinateY][p.coordinateX - 1] = p)
+    field.reverse()
+    return json({match,field});
 };
 
 export default function MatchRoute() {
@@ -35,15 +47,12 @@ export default function MatchRoute() {
             <div>
                 Formation: {data.match?.alignment?.formation?.name}
             </div>
-            <div>
-                <ul>
-                    {data.match?.alignment?.startingPlayers.map((player) => (
-                        <li key={player.player.id}>
-                            <span><img alt="" src={player.player.picture || ""} height="100px"/></span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+
+                <div className="grid grid-cols-9 gap-4">
+                    {data?.field.map((x)=>x.map((position:any)=>(
+                        <div>{position?.position}</div>
+                    )))}
+                </div>
         </div>
 
     );

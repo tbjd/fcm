@@ -19,18 +19,13 @@ export const loader = async ({request}: LoaderArgs) => {
 
 export default function IndexRoute() {
     return (
-        <div>
+        <div className="container mx-auto">
+            <h1>FC Manager</h1>
             <div>
-                <h1>
-                    <Link to="login">Log in / register</Link>
-                </h1>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="teams">Continue as guess</Link>
-                        </li>
-                    </ul>
-                </nav>
+                <Link to="login">Log in / register</Link>
+            </div>
+            <div>
+                <Link to="teams">Continue as guess</Link>
             </div>
         </div>
     );

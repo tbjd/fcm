@@ -60,8 +60,8 @@ export const action = async ({request}: ActionArgs) => {
 
     switch (loginType) {
         case "login": {
-            const user = await login({ username, password });
-            console.log({ user });
+            const user = await login({username, password});
+            console.log({user});
             if (!user) {
                 return badRequest({
                     fieldErrors: null,
@@ -104,8 +104,8 @@ export default function Login() {
     const actionData = useActionData<typeof action>();
     const [searchParams] = useSearchParams();
     return (
-        <div className="container">
-            <div className="content" data-light="">
+        <div >
+            <div  data-light="">
                 <h1>Login</h1>
                 <form method="post">
                     <input
@@ -116,7 +116,7 @@ export default function Login() {
                         }
                     />
                     <fieldset>
-                        <legend className="sr-only">
+                        <legend>
                             Login or Register?
                         </legend>
                         <label>
@@ -162,7 +162,6 @@ export default function Login() {
                         />
                         {actionData?.fieldErrors?.username ? (
                             <p
-                                className="form-validation-error"
                                 role="alert"
                                 id="username-error"
                             >
@@ -188,7 +187,7 @@ export default function Login() {
                         />
                         {actionData?.fieldErrors?.password ? (
                             <p
-                                className="form-validation-error"
+
                                 role="alert"
                                 id="password-error"
                             >
@@ -199,14 +198,14 @@ export default function Login() {
                     <div id="form-error-message">
                         {actionData?.formError ? (
                             <p
-                                className="form-validation-error"
+
                                 role="alert"
                             >
                                 {actionData.formError}
                             </p>
                         ) : null}
                     </div>
-                    <button type="submit" className="button">
+                    <button type="submit">
                         Submit
                     </button>
                 </form>

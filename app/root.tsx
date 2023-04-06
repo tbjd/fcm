@@ -1,9 +1,5 @@
 import type {LinksFunction} from "@remix-run/node";
-import {
-    Links,
-    LiveReload,
-    Outlet,
-} from "@remix-run/react";
+import {Links, LiveReload, Outlet,} from "@remix-run/react";
 import styles from "./styles/tailwind.css";
 
 export const links: LinksFunction = () => {
@@ -14,6 +10,7 @@ export const links: LinksFunction = () => {
         },
     ];
 };
+
 function Document({
                       children,
                       title = `FCM`,
@@ -24,13 +21,13 @@ function Document({
     return (
         <html lang="en">
         <head>
-            <meta charSet="utf-8" />
+            <meta charSet="utf-8"/>
             <title>{title}</title>
-            <Links />
+            <Links/>
         </head>
-        <body>
+        <body className="min-h-screen bg-gray-800 text-gray-300">
         {children}
-        <LiveReload />
+        <LiveReload/>
         </body>
         </html>
     );
@@ -39,12 +36,12 @@ function Document({
 export default function App() {
     return (
         <Document>
-            <Outlet />
+            <Outlet/>
         </Document>
     );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
+export function ErrorBoundary({error}: { error: Error }) {
     return (
         <Document title="Uh-oh!">
             <div className="error-container">
